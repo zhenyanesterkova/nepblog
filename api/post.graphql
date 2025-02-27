@@ -1,0 +1,15 @@
+type Post {
+  content: Html!
+  createdAt: Timestamp!
+  id: Uuid!
+  userId: Uuid!
+  title: String!
+  allowedComments: Booling!
+  comments: CommentResolvingResult! @goField(forceResolver: true)
+}
+
+type PostNotFoundProblem implements ProblemInterface {
+  message: String!
+}
+
+union CommentResolvingResult = CommentList | InternalErrorProblem

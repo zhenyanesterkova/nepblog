@@ -1,0 +1,15 @@
+type Comment {
+  postID: Uuid!
+  userID: Uuid!
+  createdAt: Timestamp!
+  data: String!
+  id: Uuid!
+}
+
+type CommentList {
+  items: [Comment!]!
+}
+
+type CommentNotFoundProblem implements ProblemInterface {
+  message: String!
+}
