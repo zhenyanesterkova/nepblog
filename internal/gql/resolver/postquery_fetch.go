@@ -6,23 +6,19 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/zhenyanesterkova/nepblog/internal/feature/post"
 	"github.com/zhenyanesterkova/nepblog/internal/gql/model"
-	"github.com/zhenyanesterkova/nepblog/internal/gql/runtime"
 )
-
-// TotalCount is the resolver for the totalCount field.
-func (r *postFetchListResolver) TotalCount(ctx context.Context, obj *model.PostFetchList, estimate uint) (model.TotalCountResolvingResult, error) {
-	panic(fmt.Errorf("not implemented: TotalCount - totalCount"))
-}
 
 // Fetch is the resolver for the fetch field.
 func (r *postQueryResolver) Fetch(ctx context.Context, obj *model.PostQuery, filter *model.PostFetchFilterInput, sort model.PostFetchSortEnum, pageSize uint, pageNumber uint) (model.PostFetchResult, error) {
-	panic(fmt.Errorf("not implemented: Fetch - fetch"))
+	posts, err := r.Repo.FetchPosts(ctx, filter.IDAnyOf)
+	if err != nil {
+		return NewInternalErrorProblem(), nil
+	}
+
+	return model.PostFetchList{
+		Items: post.MapManyToGqlModels(posts),
+	}, nil
 }
-
-// PostFetchList returns runtime.PostFetchListResolver implementation.
-func (r *Resolver) PostFetchList() runtime.PostFetchListResolver { return &postFetchListResolver{r} }
-
-type postFetchListResolver struct{ *Resolver }

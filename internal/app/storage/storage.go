@@ -1,9 +1,11 @@
 package storage
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 
@@ -13,11 +15,15 @@ import (
 	"github.com/zhenyanesterkova/nepblog/internal/app/storage/memstorage"
 	"github.com/zhenyanesterkova/nepblog/internal/app/storage/postgres"
 	"github.com/zhenyanesterkova/nepblog/internal/app/storage/retrystorage"
+	"github.com/zhenyanesterkova/nepblog/internal/feature/comment"
+	"github.com/zhenyanesterkova/nepblog/internal/feature/post"
 )
 
 type Store interface {
 	Ping() error
 	Close() error
+	FetchPosts(ctx context.Context, ids []uuid.UUID) ([]post.Post, error)
+	FetchCommentsByPostID(ctx context.Context, postID []uuid.UUID) ([]comment.Comment, error)
 }
 
 func NewStore(conf *config.Config, log logger.LogrusLogger) (Store, error) {

@@ -1,17 +1,24 @@
 package retrystorage
 
 import (
+	"context"
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/zhenyanesterkova/nepblog/internal/app/backoff"
 	"github.com/zhenyanesterkova/nepblog/internal/app/config"
 	"github.com/zhenyanesterkova/nepblog/internal/app/logger"
+	"github.com/zhenyanesterkova/nepblog/internal/feature/comment"
+	"github.com/zhenyanesterkova/nepblog/internal/feature/post"
 )
 
 type Store interface {
 	Ping() error
 	Close() error
+	FetchPosts(ctx context.Context, ids []uuid.UUID) ([]post.Post, error)
+	FetchCommentsByPostID(ctx context.Context, postID []uuid.UUID) ([]comment.Comment, error)
 }
 
 type RetryStorage struct {
@@ -56,6 +63,40 @@ func (rs *RetryStorage) Ping() error {
 		return fmt.Errorf("failed ping: %w", err)
 	}
 	return nil
+}
+
+func (rs *RetryStorage) FetchPosts(ctx context.Context, ids []uuid.UUID) ([]post.Post, error) {
+	posts, err := rs.storage.FetchPosts(ctx, ids)
+	if rs.checkRetry(err) {
+		err = rs.retry(func() error {
+			posts, err = rs.storage.FetchPosts(ctx, ids)
+			if err != nil {
+				return fmt.Errorf("failed retry FetchPosts: %w", err)
+			}
+			return nil
+		})
+	}
+	if err != nil {
+		return posts, fmt.Errorf("failed FetchPosts: %w", err)
+	}
+	return posts, nil
+}
+
+func (rs *RetryStorage) FetchCommentsByPostID(ctx context.Context, postID []uuid.UUID) ([]comment.Comment, error) {
+	posts, err := rs.storage.FetchCommentsByPostID(ctx, postID)
+	if rs.checkRetry(err) {
+		err = rs.retry(func() error {
+			posts, err = rs.storage.FetchCommentsByPostID(ctx, postID)
+			if err != nil {
+				return fmt.Errorf("failed retry FetchCommentsByPostID: %w", err)
+			}
+			return nil
+		})
+	}
+	if err != nil {
+		return posts, fmt.Errorf("failed FetchCommentsByPostID: %w", err)
+	}
+	return posts, nil
 }
 
 func (rs *RetryStorage) Close() error {

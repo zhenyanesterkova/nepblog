@@ -9,9 +9,12 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/zhenyanesterkova/nepblog/internal/app/logger"
+	"github.com/zhenyanesterkova/nepblog/internal/feature/comment"
+	"github.com/zhenyanesterkova/nepblog/internal/feature/post"
 )
 
 type PostgresStorage struct {
@@ -52,6 +55,14 @@ func runMigrations(dsn string) error {
 		}
 	}
 	return nil
+}
+
+func (psg *PostgresStorage) FetchPosts(ctx context.Context, ids []uuid.UUID) ([]post.Post, error) {
+	return []post.Post{}, nil
+}
+
+func (psg *PostgresStorage) FetchCommentsByPostID(ctx context.Context, postID []uuid.UUID) ([]comment.Comment, error) {
+	return []comment.Comment{}, nil
 }
 
 func (psg *PostgresStorage) Ping() error {

@@ -6,15 +6,28 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/zhenyanesterkova/nepblog/internal/app/dataloaders"
+	"github.com/zhenyanesterkova/nepblog/internal/feature/comment"
 	"github.com/zhenyanesterkova/nepblog/internal/gql/model"
 	"github.com/zhenyanesterkova/nepblog/internal/gql/runtime"
 )
 
 // Comments is the resolver for the comments field.
 func (r *postResolver) Comments(ctx context.Context, obj *model.Post) (model.CommentResolvingResult, error) {
-	panic(fmt.Errorf("not implemented: Comments - comments"))
+	log := r.Logger.LogrusLog
+
+	dataLoader := ctx.Value(dataloaders.DataLoadersContextKey).(*dataloaders.DataLoaders).CommentLoaderByPostID
+
+	comments, err := dataLoader.Load(comment.LoaderByPostIDKey{PostID: obj.ID})
+	if err != nil {
+		log.Errorf("comment.LoaderByPostID.Load: %v", err)
+		return NewInternalErrorProblem(), nil
+	}
+
+	return model.CommentList{
+		Items: comment.MapManyToGqlModels(comments),
+	}, nil
 }
 
 // Post returns runtime.PostResolver implementation.
