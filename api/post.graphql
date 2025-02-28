@@ -4,7 +4,7 @@ type Post {
   id: Uuid!
   userId: Uuid!
   title: String!
-  allowedComments: Booling!
+  allowedComments: Boolean!
   comments: CommentResolvingResult! @goField(forceResolver: true)
 }
 
