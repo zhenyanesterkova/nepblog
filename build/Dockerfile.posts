@@ -1,0 +1,26 @@
+FROM golang:1.24 AS build-stage
+
+WORKDIR /app
+
+COPY ../go.mod ../go.sum ./
+RUN go mod download
+
+RUN cd ./configs 
+RUN go run github.com/99designs/gqlgen generate
+
+RUN cd ../internal/feature/post
+RUN go run github.com/vektah/dataloaden LoaderByID LoaderByIDKey *Post
+
+RUN cd ../comment
+RUN go run github.com/vektah/dataloaden LoaderByPostID LoaderByPostIDKey []Comment
+
+COPY ../. .
+RUN CGO_ENABLED=0 GOOS=linux go build -o ./bin/posts ./cmd/posts
+
+FROM debian:stable-slim
+
+WORKDIR /app
+
+COPY --from=build-stage /app/bin/posts bin/posts
+
+ENTRYPOINT ["./bin/posts"]
