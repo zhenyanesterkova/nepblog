@@ -2,9 +2,10 @@ package model
 
 import (
 	"fmt"
-	"github.com/99designs/gqlgen/graphql"
 	"io"
 	"strconv"
+
+	"github.com/99designs/gqlgen/graphql"
 )
 
 const pageNumberMin uint = 1

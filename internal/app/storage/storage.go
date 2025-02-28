@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
+
 	"github.com/zhenyanesterkova/nepblog/internal/app/backoff"
 	"github.com/zhenyanesterkova/nepblog/internal/app/config"
 	"github.com/zhenyanesterkova/nepblog/internal/app/logger"

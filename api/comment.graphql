@@ -4,6 +4,7 @@ type Comment {
   createdAt: Timestamp!
   data: String!
   id: Uuid!
+  childComments: CommentResolvingResult! @goField(forceResolver: true)
 }
 
 type CommentList {
@@ -13,3 +14,5 @@ type CommentList {
 type CommentNotFoundProblem implements ProblemInterface {
   message: String!
 }
+
+union CommentResolvingResult = CommentList | InternalErrorProblem
