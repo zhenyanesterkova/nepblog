@@ -1,0 +1,13 @@
+type Post {
+  content: Html!
+  createdAt: Timestamp!
+  id: Uuid!
+  userId: Uuid!
+  title: String!
+  allowedComments: Boolean!
+  comments: CommentResolvingResult! @goField(forceResolver: true)
+}
+
+type PostNotFoundProblem implements ProblemInterface {
+  message: String!
+}

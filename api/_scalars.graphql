@@ -1,0 +1,6 @@
+scalar Html
+scalar Uuid
+scalar PageNumber
+scalar PageSize
+scalar Timestamp
+scalar UInt

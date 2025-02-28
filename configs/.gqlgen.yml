@@ -1,0 +1,30 @@
+schema:
+  - ../api/**/*.graphql
+
+exec:
+  filename: ../internal/gql/runtime/generated.go
+  package: runtime
+
+model:
+  filename: ../internal/gql/model/generated.go
+  package: model
+
+resolver:
+  layout: follow-schema
+  dir: ../internal/gql/resolver
+  package: resolver
+  filename_template: "{name}.go"
+
+models:
+  Html:
+    model: github.com/99designs/gqlgen/graphql.String
+  Uuid:
+    model: github.com/zhenyanesterkova/nepblog/internal/gql/model.Uuid
+  PageNumber:
+    model: github.com/zhenyanesterkova/nepblog/internal/gql/model.PageNumber
+  PageSize:
+    model: github.com/zhenyanesterkova/nepblog/internal/gql/model.PageSize
+  Timestamp:
+    model: github.com/99designs/gqlgen/graphql.Time
+  UInt:
+    model: github.com/zhenyanesterkova/nepblog/internal/gql/model.UInt

@@ -1,0 +1,19 @@
+type Comment {
+  postID: Uuid!
+  userID: Uuid!
+  createdAt: Timestamp!
+  data: String!
+  id: Uuid!
+  childComments: CommentResolvingResult @goField(forceResolver: true)
+  parentID: Uuid
+}
+
+type CommentList {
+  items: [Comment!]
+}
+
+type CommentNotFoundProblem implements ProblemInterface {
+  message: String!
+}
+
+union CommentResolvingResult = CommentList | InternalErrorProblem

@@ -1,0 +1,23 @@
+extend type PostQuery {
+  fetch(
+    filter: PostFetchFilterInput
+    sort: PostFetchSortEnum! = CREATED_AT_ASC
+    pageSize: PageSize! = 10
+    pageNumber: PageNumber! = 1
+  ): PostFetchResult! @goField(forceResolver: true)
+}
+
+enum PostFetchSortEnum {
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+}
+
+input PostFetchFilterInput {
+  idAnyOf: [Uuid!]
+}
+
+type PostFetchList {
+  items: [Post!]!
+}
+
+union PostFetchResult = PostFetchList | InternalErrorProblem
