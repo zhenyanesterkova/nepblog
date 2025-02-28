@@ -18,8 +18,6 @@ input PostFetchFilterInput {
 
 type PostFetchList {
   items: [Post!]!
-  totalCount(estimate: UInt! = 10000): TotalCountResolvingResult!
-    @goField(forceResolver: true)
 }
 
 union PostFetchResult = PostFetchList | InternalErrorProblem
