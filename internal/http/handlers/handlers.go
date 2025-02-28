@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
+
 	"github.com/zhenyanesterkova/nepblog/internal/app/logger"
 	"github.com/zhenyanesterkova/nepblog/internal/http/middleware"
 )
@@ -35,6 +37,7 @@ func (rh *RepositorieHandler) InitChiRouter(router *chi.Mux) {
 	router.Use(mdlWare.RequestLogger)
 	router.Use(mdlWare.GZipMiddleware)
 	router.Route("/", func(r chi.Router) {
-
+		r.Handle("/api", rh.GraphQLHandler())
+		r.Get("/", playground.Handler("Posts", "/api"))
 	})
 }
