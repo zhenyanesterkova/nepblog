@@ -19,6 +19,10 @@ type PostFetchResult interface {
 	IsPostFetchResult()
 }
 
+type PostResolvingResult interface {
+	IsPostResolvingResult()
+}
+
 type ProblemInterface interface {
 	IsProblemInterface()
 	GetMessage() string
@@ -29,11 +33,12 @@ type TotalCountResolvingResult interface {
 }
 
 type Comment struct {
-	PostID    uuid.UUID `json:"postID"`
-	UserID    uuid.UUID `json:"userID"`
-	CreatedAt time.Time `json:"createdAt"`
-	Data      string    `json:"data"`
-	ID        uuid.UUID `json:"id"`
+	PostID        uuid.UUID              `json:"postID"`
+	UserID        uuid.UUID              `json:"userID"`
+	CreatedAt     time.Time              `json:"createdAt"`
+	Data          string                 `json:"data"`
+	ID            uuid.UUID              `json:"id"`
+	ChildComments CommentResolvingResult `json:"childComments"`
 }
 
 type CommentList struct {
@@ -55,6 +60,8 @@ type InternalErrorProblem struct {
 
 func (InternalErrorProblem) IsCommentResolvingResult() {}
 
+func (InternalErrorProblem) IsPostResolvingResult() {}
+
 func (InternalErrorProblem) IsPostFetchResult() {}
 
 func (InternalErrorProblem) IsProblemInterface()     {}
@@ -71,6 +78,8 @@ type Post struct {
 	AllowedComments bool                   `json:"allowedComments"`
 	Comments        CommentResolvingResult `json:"comments"`
 }
+
+func (Post) IsPostResolvingResult() {}
 
 type PostFetchFilterInput struct {
 	IDAnyOf []uuid.UUID `json:"idAnyOf,omitempty"`
@@ -89,6 +98,8 @@ type PostNotFoundProblem struct {
 
 func (PostNotFoundProblem) IsProblemInterface()     {}
 func (this PostNotFoundProblem) GetMessage() string { return this.Message }
+
+func (PostNotFoundProblem) IsPostResolvingResult() {}
 
 type PostQuery struct {
 	Fetch PostFetchResult `json:"fetch"`

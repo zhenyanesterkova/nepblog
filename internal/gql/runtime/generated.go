@@ -40,6 +40,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Comment() CommentResolver
 	Post() PostResolver
 	PostFetchList() PostFetchListResolver
 	PostQuery() PostQueryResolver
@@ -51,11 +52,12 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Comment struct {
-		CreatedAt func(childComplexity int) int
-		Data      func(childComplexity int) int
-		ID        func(childComplexity int) int
-		PostID    func(childComplexity int) int
-		UserID    func(childComplexity int) int
+		ChildComments func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		Data          func(childComplexity int) int
+		ID            func(childComplexity int) int
+		PostID        func(childComplexity int) int
+		UserID        func(childComplexity int) int
 	}
 
 	CommentList struct {
@@ -102,6 +104,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type CommentResolver interface {
+	ChildComments(ctx context.Context, obj *model.Comment) (model.CommentResolvingResult, error)
+}
 type PostResolver interface {
 	Comments(ctx context.Context, obj *model.Post) (model.CommentResolvingResult, error)
 }
@@ -133,6 +138,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Comment.childComments":
+		if e.complexity.Comment.ChildComments == nil {
+			break
+		}
+
+		return e.complexity.Comment.ChildComments(childComplexity), true
 
 	case "Comment.createdAt":
 		if e.complexity.Comment.CreatedAt == nil {
@@ -400,6 +412,7 @@ scalar UInt
   createdAt: Timestamp!
   data: String!
   id: Uuid!
+  childComments: CommentResolvingResult! @goField(forceResolver: true)
 }
 
 type CommentList {
@@ -409,6 +422,8 @@ type CommentList {
 type CommentNotFoundProblem implements ProblemInterface {
   message: String!
 }
+
+union CommentResolvingResult = CommentList | InternalErrorProblem
 `, BuiltIn: false},
 	{Name: "../../../api/post.graphql", Input: `type Post {
   content: Html!
@@ -424,7 +439,7 @@ type PostNotFoundProblem implements ProblemInterface {
   message: String!
 }
 
-union CommentResolvingResult = CommentList | InternalErrorProblem
+union PostResolvingResult = Post | PostNotFoundProblem | InternalErrorProblem
 `, BuiltIn: false},
 	{Name: "../../../api/postquery.graphql", Input: `type PostQuery
 
@@ -973,6 +988,50 @@ func (ec *executionContext) fieldContext_Comment_id(_ context.Context, field gra
 	return fc, nil
 }
 
+func (ec *executionContext) _Comment_childComments(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Comment_childComments(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Comment().ChildComments(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.CommentResolvingResult)
+	fc.Result = res
+	return ec.marshalNCommentResolvingResult2githubᚗcomᚋzhenyanesterkovaᚋnepblogᚋinternalᚋgqlᚋmodelᚐCommentResolvingResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Comment_childComments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Comment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CommentResolvingResult does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CommentList_items(ctx context.Context, field graphql.CollectedField, obj *model.CommentList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CommentList_items(ctx, field)
 	if err != nil {
@@ -1022,6 +1081,8 @@ func (ec *executionContext) fieldContext_CommentList_items(_ context.Context, fi
 				return ec.fieldContext_Comment_data(ctx, field)
 			case "id":
 				return ec.fieldContext_Comment_id(ctx, field)
+			case "childComments":
+				return ec.fieldContext_Comment_childComments(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Comment", field.Name)
 		},
@@ -3890,6 +3951,36 @@ func (ec *executionContext) _PostFetchResult(ctx context.Context, sel ast.Select
 	}
 }
 
+func (ec *executionContext) _PostResolvingResult(ctx context.Context, sel ast.SelectionSet, obj model.PostResolvingResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.PostNotFoundProblem:
+		return ec._PostNotFoundProblem(ctx, sel, &obj)
+	case *model.PostNotFoundProblem:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostNotFoundProblem(ctx, sel, obj)
+	case model.InternalErrorProblem:
+		return ec._InternalErrorProblem(ctx, sel, &obj)
+	case *model.InternalErrorProblem:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._InternalErrorProblem(ctx, sel, obj)
+	case model.Post:
+		return ec._Post(ctx, sel, &obj)
+	case *model.Post:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Post(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _ProblemInterface(ctx context.Context, sel ast.SelectionSet, obj model.ProblemInterface) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -3961,28 +4052,64 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 		case "postID":
 			out.Values[i] = ec._Comment_postID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "userID":
 			out.Values[i] = ec._Comment_userID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
 			out.Values[i] = ec._Comment_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "data":
 			out.Values[i] = ec._Comment_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "id":
 			out.Values[i] = ec._Comment_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "childComments":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Comment_childComments(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4084,7 +4211,7 @@ func (ec *executionContext) _CommentNotFoundProblem(ctx context.Context, sel ast
 	return out
 }
 
-var internalErrorProblemImplementors = []string{"InternalErrorProblem", "CommentResolvingResult", "PostFetchResult", "ProblemInterface", "TotalCountResolvingResult"}
+var internalErrorProblemImplementors = []string{"InternalErrorProblem", "CommentResolvingResult", "PostResolvingResult", "PostFetchResult", "ProblemInterface", "TotalCountResolvingResult"}
 
 func (ec *executionContext) _InternalErrorProblem(ctx context.Context, sel ast.SelectionSet, obj *model.InternalErrorProblem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, internalErrorProblemImplementors)
@@ -4123,7 +4250,7 @@ func (ec *executionContext) _InternalErrorProblem(ctx context.Context, sel ast.S
 	return out
 }
 
-var postImplementors = []string{"Post"}
+var postImplementors = []string{"Post", "PostResolvingResult"}
 
 func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj *model.Post) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, postImplementors)
@@ -4298,7 +4425,7 @@ func (ec *executionContext) _PostFetchList(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var postNotFoundProblemImplementors = []string{"PostNotFoundProblem", "ProblemInterface"}
+var postNotFoundProblemImplementors = []string{"PostNotFoundProblem", "ProblemInterface", "PostResolvingResult"}
 
 func (ec *executionContext) _PostNotFoundProblem(ctx context.Context, sel ast.SelectionSet, obj *model.PostNotFoundProblem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, postNotFoundProblemImplementors)
