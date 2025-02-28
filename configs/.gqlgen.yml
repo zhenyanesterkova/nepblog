@@ -1,5 +1,5 @@
 schema:
-  - ./api/**/*.graphql
+  - ../api/**/*.graphql
 
 exec:
   filename: ../internal/gql/runtime/generated.go
@@ -24,5 +24,7 @@ models:
     model: github.com/zhenyanesterkova/nepblog/internal/gql/model.PageNumber
   PageSize:
     model: github.com/zhenyanesterkova/nepblog/internal/gql/model.PageSize
-  PageSize:
-    model: github.com/zhenyanesterkova/nepblog/internal/gql/model.Timestamp
+  Timestamp:
+    model: github.com/99designs/gqlgen/graphql.Time
+  UInt:
+    model: github.com/zhenyanesterkova/nepblog/internal/gql/model.UInt
