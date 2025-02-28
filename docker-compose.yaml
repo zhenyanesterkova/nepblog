@@ -1,0 +1,11 @@
+services:
+  posts:
+    container_name: posts
+    build:
+      context: .
+      dockerfile: build/Dockerfile.posts
+    ports:
+      - 8085:8085
+    environment:
+      ADDRESS: "0.0.0.0:8085"
+    restart: always
