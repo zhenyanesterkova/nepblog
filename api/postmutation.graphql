@@ -1,5 +1,0 @@
-type PostMutation
-
-extend type Mutation {
-  post: PostMutation!
-}
