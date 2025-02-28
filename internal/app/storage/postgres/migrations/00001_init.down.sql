@@ -1,0 +1,9 @@
+BEGIN TRANSACTION;
+
+DROP INDEX IF EXISTS post_id;
+DROP INDEX IF EXISTS comment_id;
+
+DROP TABLE comments;
+DROP TABLE posts;
+
+COMMIT; 
