@@ -1,6 +1,14 @@
 package resolver
 
-import "github.com/zhenyanesterkova/nepblog/internal/app/logger"
+import (
+	"context"
+
+	"github.com/google/uuid"
+
+	"github.com/zhenyanesterkova/nepblog/internal/app/logger"
+	"github.com/zhenyanesterkova/nepblog/internal/feature/comment"
+	"github.com/zhenyanesterkova/nepblog/internal/feature/post"
+)
 
 // This file will not be regenerated automatically.
 //
@@ -8,6 +16,8 @@ import "github.com/zhenyanesterkova/nepblog/internal/app/logger"
 type Repositorie interface {
 	Ping() error
 	Close() error
+	FetchPosts(ctx context.Context, ids []uuid.UUID) ([]post.Post, error)
+	FetchCommentsByPostID(ctx context.Context, postID []uuid.UUID) ([]comment.Comment, error)
 }
 
 type Resolver struct {

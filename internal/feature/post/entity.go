@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/zhenyanesterkova/nepblog/internal/feature/comment"
 )
 
 type Post struct {
@@ -13,4 +15,5 @@ type Post struct {
 	Title           string
 	Content         string
 	AllowedComments bool
+	Comments        []comment.Comment
 }

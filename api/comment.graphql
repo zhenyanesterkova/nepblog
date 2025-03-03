@@ -4,11 +4,12 @@ type Comment {
   createdAt: Timestamp!
   data: String!
   id: Uuid!
-  childComments: CommentResolvingResult! @goField(forceResolver: true)
+  childComments: CommentResolvingResult @goField(forceResolver: true)
+  parentID: Uuid
 }
 
 type CommentList {
-  items: [Comment!]!
+  items: [Comment!]
 }
 
 type CommentNotFoundProblem implements ProblemInterface {

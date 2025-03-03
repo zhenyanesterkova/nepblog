@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	gqlhandler "github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
@@ -20,10 +20,10 @@ const queryCacheLRUSize = 1000
 const automaticPersistedQueryCacheLRUSize = 100
 const complexityLimit = 1000
 
-func (rh *RepositorieHandler) GraphQLHandler() *gqlhandler.Server {
+func (rh *RepositorieHandler) GraphQLHandler() *handler.Server {
 	cfg := runtime.Config{Resolvers: resolver.NewResolver(rh.Repo, rh.Logger)}
 
-	handler := gqlhandler.New(
+	handler := handler.New(
 		runtime.NewExecutableSchema(
 			cfg,
 		),

@@ -29,15 +29,17 @@ type TotalCountResolvingResult interface {
 }
 
 type Comment struct {
-	PostID    uuid.UUID `json:"postID"`
-	UserID    uuid.UUID `json:"userID"`
-	CreatedAt time.Time `json:"createdAt"`
-	Data      string    `json:"data"`
-	ID        uuid.UUID `json:"id"`
+	PostID        uuid.UUID              `json:"postID"`
+	UserID        uuid.UUID              `json:"userID"`
+	CreatedAt     time.Time              `json:"createdAt"`
+	Data          string                 `json:"data"`
+	ID            uuid.UUID              `json:"id"`
+	ChildComments CommentResolvingResult `json:"childComments,omitempty"`
+	ParentID      *uuid.UUID             `json:"parentID,omitempty"`
 }
 
 type CommentList struct {
-	Items []*Comment `json:"items"`
+	Items []*Comment `json:"items,omitempty"`
 }
 
 func (CommentList) IsCommentResolvingResult() {}
@@ -77,8 +79,7 @@ type PostFetchFilterInput struct {
 }
 
 type PostFetchList struct {
-	Items      []*Post                   `json:"items"`
-	TotalCount TotalCountResolvingResult `json:"totalCount"`
+	Items []*Post `json:"items"`
 }
 
 func (PostFetchList) IsPostFetchResult() {}

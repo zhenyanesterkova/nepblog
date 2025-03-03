@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/zhenyanesterkova/nepblog/internal/gql/model"
 	"github.com/zhenyanesterkova/nepblog/internal/gql/runtime"
@@ -14,7 +13,7 @@ import (
 
 // Post is the resolver for the post field.
 func (r *queryResolver) Post(ctx context.Context) (*model.PostQuery, error) {
-	panic(fmt.Errorf("not implemented: Post - post"))
+	return &model.PostQuery{}, nil
 }
 
 // PostQuery returns runtime.PostQueryResolver implementation.

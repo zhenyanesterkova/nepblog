@@ -11,5 +11,3 @@ type Post {
 type PostNotFoundProblem implements ProblemInterface {
   message: String!
 }
-
-union PostResolvingResult = Post | PostNotFoundProblem | InternalErrorProblem
